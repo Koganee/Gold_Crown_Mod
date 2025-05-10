@@ -1,6 +1,8 @@
 package net.kogane.crownmod.events;
 
 import net.kogane.crownmod.CrownMod;
+import net.kogane.crownmod.entity.ModEntities;
+import net.kogane.crownmod.entity.custom.GemEssenceFairyEntity;
 import net.kogane.crownmod.item.ModItems;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.world.entity.Entity;
@@ -13,6 +15,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -63,7 +66,13 @@ public class ModEvents {
             if(mainHandItem.getItem() == Items.BONE && helmetItemStack.getItem() == ModItems.GOLD_CROWN.get())
             {
                 wolf.setTame(true);
+                wolf.setOwnerUUID(player.getUUID());
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
+        event.put(ModEntities.GEM_ESSENCE_FAIRY.get(), GemEssenceFairyEntity.createAttributes().build());
     }
 }
