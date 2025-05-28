@@ -17,6 +17,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<GemEssenceFairyEntity>> GEM_ESSENCE_FAIRY =
             ENTITY_TYPES.register("gem_essence_fairy", () -> EntityType.Builder.of(GemEssenceFairyEntity::new, MobCategory.CREATURE)
                     .sized(0.6F, 1.95F).build("gem_essence_fairy"));
+    public static final RegistryObject<EntityType<GemEssenceFairyEntity>> GOLDEN_FAIRY =
+            ENTITY_TYPES.register("golden_fairy", () -> EntityType.Builder.of(GemEssenceFairyEntity::new, MobCategory.CREATURE)
+                    .sized(0.6F, 1.95F).build("golden_fairy"));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

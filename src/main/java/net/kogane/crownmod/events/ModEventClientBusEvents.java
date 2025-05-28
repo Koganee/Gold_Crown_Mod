@@ -11,4 +11,6 @@ public class ModEventClientBusEvents {
     @SubscribeEvent
     public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
     }
+
+
 }
