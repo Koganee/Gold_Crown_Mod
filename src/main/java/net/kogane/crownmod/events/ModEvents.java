@@ -4,19 +4,31 @@ import net.kogane.crownmod.CrownMod;
 import net.kogane.crownmod.entity.ModEntities;
 import net.kogane.crownmod.entity.custom.GemEssenceFairyEntity;
 import net.kogane.crownmod.entity.custom.GoldenFairyEntity;
+import net.kogane.crownmod.item.ModArmorMaterials;
 import net.kogane.crownmod.item.ModItems;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
@@ -24,11 +36,15 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
+
+import java.awt.*;
 import java.lang.reflect.Field;
 
 @Mod.EventBusSubscriber(modid = CrownMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -57,6 +73,29 @@ public class ModEvents {
             event.player.setSprinting(false);
         }
         player.getFoodData().setFoodLevel(6); // Set food level to 20 (10 hunger points)
+
+        if (!world.isClientSide) {
+            BlockPos posBelow = player.blockPosition().below();
+            if (world.getBlockState(posBelow).is(Blocks.REDSTONE_BLOCK)) {
+                boolean wearingCopper = false;
+
+                for (ItemStack armorPiece : player.getArmorSlots()) {
+                    if(armorPiece.isEmpty()) {
+                        break;
+                    }
+                    if (!armorPiece.isEmpty() && armorPiece.getItem() instanceof ArmorItem armorItem) {
+                        if (armorItem.getMaterial() == ModArmorMaterials.COPPER_ARMOR) {
+                            wearingCopper = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (wearingCopper) {
+                    player.setSecondsOnFire(5);
+                }
+            }
+        }
     }
 
     @SubscribeEvent
@@ -88,7 +127,24 @@ public class ModEvents {
     @SubscribeEvent
     public static void onPlayerEatEvent(LivingEntityUseItemEvent.Finish event) {
         if (event.getEntity() instanceof Player player && event.getItem().getItem().isEdible()) {
-            player.heal(8.0f); // Heal 4 hearts
+            Item item = event.getItem().getItem();
+
+            // Check if it's a cooked food item
+            if (item == Items.COOKED_BEEF ||
+                    item == Items.COOKED_CHICKEN ||
+                    item == Items.COOKED_MUTTON ||
+                    item == Items.COOKED_PORKCHOP ||
+                    item == Items.COOKED_RABBIT ||
+                    item == Items.COOKED_COD ||
+                    item == Items.COOKED_SALMON ||
+                    item == Items.BAKED_POTATO) {
+
+                player.heal(8.0f); // Heal 4 hearts
+            }
+            else
+            {
+                player.heal(2.0f); //Heal 1 heart
+            }
         }
     }
 
@@ -104,6 +160,27 @@ public class ModEvents {
         }
     }
     */
+
+    @SubscribeEvent
+    public static void onPhantomSpawn(MobSpawnEvent event) {
+        if (event.getEntity() instanceof Phantom) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
+    @SubscribeEvent
+    public static void onPiglinSpawn(MobSpawnEvent event) {
+        if (event.getEntity() instanceof Piglin) {
+            event.setResult(Event.Result.DENY);
+        }
+        if (event.getEntity() instanceof PiglinBrute) {
+            event.setResult(Event.Result.DENY);
+        }
+        if (event.getEntity() instanceof Hoglin) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
+
+
     @SubscribeEvent
     public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.GEM_ESSENCE_FAIRY.get(), GemEssenceFairyEntity.createAttributes().build());

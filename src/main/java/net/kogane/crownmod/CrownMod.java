@@ -1,5 +1,6 @@
 package net.kogane.crownmod;
 
+import net.kogane.crownmod.block.ModBlocks;
 import net.kogane.crownmod.entity.ModEntities;
 import net.kogane.crownmod.entity.client.GemEssenceFairyRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -35,6 +36,7 @@ public class CrownMod
 
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
+        ModBlocks.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
@@ -48,8 +50,20 @@ public class CrownMod
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-        if (event.getTabKey() == CreativeModeTabs.COMBAT)
+        if(event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
         {
+            event.accept(ModBlocks.YELLOW_BRICK_BLOCK.get());
+            event.accept(ModBlocks.BLUE_BRICK_BLOCK.get());
+            event.accept(ModBlocks.GREEN_BRICK_BLOCK.get());
+            event.accept(ModBlocks.PINK_BRICK_BLOCK.get());
+            event.accept(ModBlocks.RED_BRICK_BLOCK.get());
+        }
+        if(event.getTabKey() == CreativeModeTabs.COMBAT)
+        {
+            event.accept(ModItems.COPPER_CHESTPLATE.get());
+            event.accept(ModItems.COPPER_HELMET.get());
+            event.accept(ModItems.COPPER_LEGGINGS.get());
+            event.accept(ModItems.COPPER_BOOTS.get());
         }
     }
 

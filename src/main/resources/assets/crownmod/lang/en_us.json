@@ -1,5 +1,15 @@
 {
   "item.crownmod.gold_crown": "Gold Crown",
+  "block.crownmod.yellow_brick_block": "Yellow Brick Block",
+  "block.crownmod.blue_brick_block": "Blue Brick Block",
+  "block.crownmod.green_brick_block": "Green Brick Block",
+  "block.crownmod.pink_brick_block": "Pink Brick Block",
+  "block.crownmod.red_brick_block": "Red Brick Block",
+
+  "item.crownmod.copper_chestplate": "Copper Chestplate",
+  "item.crownmod.copper_leggings": "Copper Leggings",
+  "item.crownmod.copper_boots": "Copper Boots",
+  "item.crownmod.copper_helmet": "Copper Helmet",
 
   "entity.crownmod.gem_essence_fairy": "Gem Essence Fairy"
 }
