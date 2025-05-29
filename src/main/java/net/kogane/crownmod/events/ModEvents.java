@@ -6,14 +6,11 @@ import net.kogane.crownmod.entity.custom.GemEssenceFairyEntity;
 import net.kogane.crownmod.entity.custom.GoldenFairyEntity;
 import net.kogane.crownmod.item.ModArmorMaterials;
 import net.kogane.crownmod.item.ModItems;
-import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
+import net.kogane.crownmod.particle.ModParticles;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
@@ -24,10 +21,8 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -35,20 +30,16 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-
-
-import java.awt.*;
-import java.lang.reflect.Field;
 
 @Mod.EventBusSubscriber(modid = CrownMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEvents {
+
+    static boolean hasChargedEffect = false;
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event)
@@ -74,15 +65,15 @@ public class ModEvents {
         }
         player.getFoodData().setFoodLevel(6); // Set food level to 20 (10 hunger points)
 
+
         if (!world.isClientSide) {
             BlockPos posBelow = player.blockPosition().below();
-            if (world.getBlockState(posBelow).is(Blocks.REDSTONE_BLOCK)) {
+            if (hasChargedEffect == true) {
+                activateChargedEffect(player, world);
+            } else if (world.getBlockState(posBelow).is(Blocks.REDSTONE_BLOCK) && !hasChargedEffect) {
                 boolean wearingCopper = false;
 
                 for (ItemStack armorPiece : player.getArmorSlots()) {
-                    if(armorPiece.isEmpty()) {
-                        break;
-                    }
                     if (!armorPiece.isEmpty() && armorPiece.getItem() instanceof ArmorItem armorItem) {
                         if (armorItem.getMaterial() == ModArmorMaterials.COPPER_ARMOR) {
                             wearingCopper = true;
@@ -92,9 +83,26 @@ public class ModEvents {
                 }
 
                 if (wearingCopper) {
-                    player.setSecondsOnFire(5);
+                    activateChargedEffect(player, world);
+                    hasChargedEffect = true;
                 }
             }
+        }
+
+        ItemStack head = player.getInventory().armor.get(3); // Helmet
+        ItemStack chest = player.getInventory().armor.get(2); // Chestplate
+        ItemStack legs = player.getInventory().armor.get(1); // Leggings
+        ItemStack boots = player.getInventory().armor.get(0); // Boots
+
+        // Check if all are copper armor
+        boolean isFullCopper =
+                head.getItem() == ModItems.COPPER_HELMET.get() &&
+                        chest.getItem() == ModItems.COPPER_CHESTPLATE.get() &&
+                        legs.getItem() == ModItems.COPPER_LEGGINGS.get() &&
+                        boots.getItem() == ModItems.COPPER_BOOTS.get();
+
+        if (!isFullCopper) {
+            hasChargedEffect = false;
         }
     }
 
@@ -148,18 +156,20 @@ public class ModEvents {
         }
     }
 
-    /*
-    @SubscribeEvent
-    public static void onPlayerAttackEvent(LivingHurtEvent event) {
-        // Get the attacker
-        Entity source = event.getSource().getEntity();
 
-        if (source instanceof Player player) {
-            player.resetAttackStrengthTicker();
-            player.swinging = false;
+    @SubscribeEvent
+    public static void onLivingAttack(LivingAttackEvent event) {
+        // Get the attacker
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            LivingEntity attacker = event.getSource().getEntity() instanceof LivingEntity ? (LivingEntity) event.getSource().getEntity() : null;
+
+            if (hasChargedEffect == true) {
+                attacker.hurt(attacker.damageSources().cactus(), 1.0f);
+            }
         }
     }
-    */
 
     @SubscribeEvent
     public static void onPhantomSpawn(MobSpawnEvent event) {
@@ -177,6 +187,22 @@ public class ModEvents {
         }
         if (event.getEntity() instanceof Hoglin) {
             event.setResult(Event.Result.DENY);
+        }
+    }
+
+    public static void activateChargedEffect(Player player, Level world)
+    {
+        System.out.println("Test 1");
+        ServerLevel level = (ServerLevel) world;
+        if (!world.isClientSide)
+        {
+            for(int i = 0; i < 1; i++)
+            {
+                System.out.println("Test 2");
+                level.sendParticles(ModParticles.REDSTONE_COPPER_PARTICLES.get(),
+                        player.getX(), player.getY(), player.getZ(), 1,
+                        Math.cos(i * 18) * 0.15d, 0.15d, Math.sin(i * 18) * 0.15d, 0.1);
+            }
         }
     }
 

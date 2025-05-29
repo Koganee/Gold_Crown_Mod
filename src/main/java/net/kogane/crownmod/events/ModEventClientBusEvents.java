@@ -1,6 +1,8 @@
 package net.kogane.crownmod.events;
 
 import net.kogane.crownmod.CrownMod;
+import net.kogane.crownmod.particle.ModParticles;
+import net.kogane.crownmod.particle.RedstoneCopperParticles;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -10,6 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 public class ModEventClientBusEvents {
     @SubscribeEvent
     public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.REDSTONE_COPPER_PARTICLES.get(), RedstoneCopperParticles.Provider::new);
     }
 
 
