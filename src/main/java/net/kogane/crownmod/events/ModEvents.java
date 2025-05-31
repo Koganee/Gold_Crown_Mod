@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
@@ -186,6 +187,12 @@ public class ModEvents {
             event.setResult(Event.Result.DENY);
         }
         if (event.getEntity() instanceof Hoglin) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
+    @SubscribeEvent
+    public static void onRabbitSpawn(MobSpawnEvent event) {
+        if (event.getEntity() instanceof Rabbit) {
             event.setResult(Event.Result.DENY);
         }
     }

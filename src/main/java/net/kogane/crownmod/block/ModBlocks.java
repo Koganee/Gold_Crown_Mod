@@ -2,6 +2,7 @@ package net.kogane.crownmod.block;
 
 import net.kogane.crownmod.CrownMod;
 import net.kogane.crownmod.item.ModItems;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -16,6 +17,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import net.kogane.crownmod.block.entity.AlchemyBasinBlock;
 
 import java.util.function.Supplier;
 
@@ -33,6 +35,9 @@ public abstract class ModBlocks {
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.BRICKS).sound(SoundType.STONE)));
     public static final RegistryObject<Block> RED_BRICK_BLOCK = registerBlock("red_brick_block",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.BRICKS).sound(SoundType.STONE)));
+
+    public static final RegistryObject<Block> ALCHEMY_BASIN_BLOCK = registerBlock("alchemy_basin_block",
+            () -> new AlchemyBasinBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).noOcclusion()));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block)
     {

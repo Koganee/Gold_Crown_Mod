@@ -4,6 +4,7 @@ import net.kogane.crownmod.block.ModBlocks;
 import net.kogane.crownmod.entity.ModEntities;
 import net.kogane.crownmod.entity.client.GemEssenceFairyRenderer;
 import net.kogane.crownmod.particle.ModParticles;
+import net.kogane.crownmod.screen.ModMenuTypes;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.fml.common.Mod;
 import com.mojang.logging.LogUtils;
@@ -39,6 +40,7 @@ public class CrownMod
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModParticles.register(modEventBus);
+        ModMenuTypes.MENU_TYPES.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
